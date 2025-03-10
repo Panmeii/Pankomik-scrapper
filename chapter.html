@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter</title>
+    <link rel="stylesheet" href="chapter.css">
+<body>
+    <h1 id="title">Loading...</h1>
+    <div class="nav-buttons">
+        <a id="prev" href="#" class="disabled">Prev</a>
+        <a id="next" href="#" class="disabled">Next</a>
+    </div>
+    <div id="images"></div>
+
+    <script>
+    const apiBase = "https://kurokamiapi-panmei.vercel.app/api/chapter/";
+
+const urlParams = new URLSearchParams(window.location.search);
+const chapterId = urlParams.get("chapterid");
+
+if (!chapterId) {
+    console.error("Chapter ID tidak ditemukan di URL.");
+} else {
+    fetch(apiBase + chapterId)
+        .then(response => response.json())
+        .then(data => {
+            if (!data || !data.images) {
+                console.error("Data chapter tidak valid:", data);
+                return;
+            }
+
+            // Set judul chapter
+            document.getElementById("title").textContent = data.title;
+
+            // Tampilkan gambar dari API
+            const imagesDiv = document.getElementById("images");
+            imagesDiv.innerHTML = ""; // Bersihkan sebelum menambahkan gambar baru
+            data.images.forEach(imgSrc => {
+                const img = document.createElement("img");
+                img.src = imgSrc;
+                imagesDiv.appendChild(img);
+            });
+
+            // Tambah fitur Next & Prev
+            setupNavigationButtons(chapterId);
+        })
+        .catch(error => console.error("Gagal mengambil data chapter:", error));
+}
+
+function setupNavigationButtons(chapterId) {
+    const prevButton = document.getElementById("prev");
+    const nextButton = document.getElementById("next");
+
+    // Ambil nama manhwa & nomor chapter dari chapterId
+    const match = chapterId.match(/(.*)-chapter-(\d+)/);
+    if (match) {
+        const manhwaTitle = match[1];
+        const chapterNumber = parseInt(match[2]);
+
+        // Setup tombol "Previous"
+        if (chapterNumber > 1) {
+            prevButton.href = `chapter.html?chapterid=${manhwaTitle}-chapter-${chapterNumber - 1}`;
+            prevButton.classList.remove("disabled");
+        } else {
+            prevButton.classList.add("disabled");
+        }
+
+        // Setup tombol "Next"
+        nextButton.href = `chapter.html?chapterid=${manhwaTitle}-chapter-${chapterNumber + 1}`;
+        nextButton.classList.remove("disabled");
+    } else {
+        console.error("Format chapter ID tidak sesuai:", chapterId);
+    }
+}
+
+// Sembunyikan tombol Next & Prev saat scrolling
+document.addEventListener("DOMContentLoaded", function () {
+    const navButtons = document.querySelector(".nav-buttons");
+    let scrollTimer;
+
+    window.addEventListener("scroll", function () {
+        navButtons.classList.add("hidden");
+        clearTimeout(scrollTimer);
+
+        scrollTimer = setTimeout(() => {
+            navButtons.classList.remove("hidden");
+        }, 500);
+    });
+});
+
+
+
+    </script>
+</body>
+</html>
