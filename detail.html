@@ -101,7 +101,7 @@ data.chapters.forEach(chapter => {
     const li = document.createElement("li");
     const chapterId = chapter.chapterLink.split("/").slice(-2, -1)[0]; // Ambil ID dari link asli
     li.innerHTML = `<a href="chapter.html?chapterid=${chapterId}">${chapter.chapterNum} - ${chapter.chapterDate}</a> 
-    // <a href="${chapter.downloadLink}" target="_blank">[Download]</a>`;
+     
     chaptersList.appendChild(li);
 });
 
