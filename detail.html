@@ -82,11 +82,19 @@ if (manhwaId) {
             document.getElementById("updatedOn").textContent = data.updatedOn;
 
             const genresList = document.getElementById("genres");
-            data.genres.forEach(genre => {
-                const li = document.createElement("li");
-                li.innerHTML = `<a href="${genre.genreLink}" target="_blank">${genre.genreName}</a>`;
-                genresList.appendChild(li);
-            });
+genresList.innerHTML = ""; // Bersihkan daftar sebelum ditambahkan
+
+if (data.genres && data.genres.length > 0) {
+    data.genres.forEach(genre => {
+        const li = document.createElement("li");
+        const genreSlug = genre.genreName.toLowerCase().replace(/\s+/g, '-'); // Format genre menjadi slug
+        li.innerHTML = `<a href="genre.html?genreid=${genreSlug}">${genre.genreName}</a>`;
+        genresList.appendChild(li);
+    });
+} else {
+    genresList.innerHTML = "<li>Genre tidak tersedia</li>";
+}
+
 
             const chaptersList = document.getElementById("chapters");
 data.chapters.forEach(chapter => {
