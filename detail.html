@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Manhwa</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">ManhwaBaca</div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Cari manhwa...">
+            <button onclick="redirectToSearch()">Cari</button>
+        </div>
+    </header>
+
+    <a href="index.html" class="back-button">Kembali ke Home</a>
+
+    <div class="detail-container">
+        <div class="detail-header">
+            <div class="detail-cover">
+                <img id="image" src="" alt="">
+            </div>
+            <div class="detail-info">
+                <h1 id="title" class="detail-title"></h1>
+                <div class="detail-meta">
+                    <p><strong>Alternatif:</strong> <span id="alternative"></span></p>
+                    <p><strong>Rating:</strong> <span id="rating"></span></p>
+                    <p><strong>Diikuti oleh:</strong> <span id="followedBy"></span></p>
+                    <p><strong>Status:</strong> <span id="status"></span></p>
+                    <p><strong>Jenis:</strong> <span id="type"></span></p>
+                    <p><strong>Rilis:</strong> <span id="released"></span></p>
+                    <p><strong>Author:</strong> <span id="author"></span></p>
+                    <p><strong>Artist:</strong> <span id="artist"></span></p>
+                    <p><strong>Diperbarui:</strong> <span id="updatedOn"></span></p>
+                </div>
+                
+                <div class="synopsis-container">
+                    <strong>Sinopsis:</strong>
+                    <div id="synopsis" class="synopsis-text"></div>
+                </div>
+                
+                <div class="genres-container">
+                    <h2 class="genres-title">Genre</h2>
+                    <ul id="genres" class="genres-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chapters-container">
+        <h2 class="chapters-title">
+            Chapter List
+            <span id="chapter-count" class="chapter-count">0 Chapter</span>
+        </h2>
+        <ul id="chapters" class="chapters-list"></ul>
+    </div>
+    
+    <script>
+      const apiBase = "https://kurokamiapi-panmei.vercel.app/api/manhwa-detail/";
+const urlParams = new URLSearchParams(window.location.search);
+const manhwaId = urlParams.get("manhwaid"); // Ambil ID dari URL
+
+if (manhwaId) {
+    fetch(apiBase + manhwaId) // Panggil API dengan format yang benar
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("title").textContent = data.title;
+            document.getElementById("image").src = data.imageSrc;
+            document.getElementById("image").alt = data.title;
+            document.getElementById("alternative").textContent = data.alternative;
+            document.getElementById("rating").textContent = data.rating;
+            document.getElementById("followedBy").textContent = data.followedBy;
+            document.getElementById("synopsis").textContent = data.synopsis;
+            document.getElementById("status").textContent = data.status;
+            document.getElementById("type").textContent = data.type;
+            document.getElementById("released").textContent = data.released;
+            document.getElementById("author").textContent = data.author;
+            document.getElementById("artist").textContent = data.artist;
+            document.getElementById("updatedOn").textContent = data.updatedOn;
+
+            const genresList = document.getElementById("genres");
+            data.genres.forEach(genre => {
+                const li = document.createElement("li");
+                li.innerHTML = `<a href="${genre.genreLink}" target="_blank">${genre.genreName}</a>`;
+                genresList.appendChild(li);
+            });
+
+            const chaptersList = document.getElementById("chapters");
+data.chapters.forEach(chapter => {
+    const li = document.createElement("li");
+    const chapterId = chapter.chapterLink.split("/").slice(-2, -1)[0]; // Ambil ID dari link asli
+    li.innerHTML = `<a href="chapter.html?chapterid=${chapterId}">${chapter.chapterNum} - ${chapter.chapterDate}</a> 
+    <a href="${chapter.downloadLink}" target="_blank">[Download]</a>`;
+    chaptersList.appendChild(li);
+});
+
+        })
+        .catch(error => console.error("Gagal mengambil detail manhwa:", error));
+}
+
+    </script>
+</body>
+</html>
