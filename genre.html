@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genre Manhwa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">ManhwaBaca</div>
+        <a href="genres.html" class="back-button">⬅ Kembali</a>
+    </header>
+
+    <div class="container">
+        <h1 id="genre-title">Manhwa Genre: </h1>
+        <div id="loading" class="loading">Loading...</div>
+<div id="manhwa-list"></div>
+
+        <div id="manhwa-list"></div>
+        <div class="pagination">
+            <button id="prevPage">⮜ Sebelumnya</button>
+            <span id="pageNumber">Halaman 1</span>
+            <button id="nextPage">Selanjutnya ⮞</button>
+        </div>
+    </div>
+
+    <script>
+    const apiBase = "https://kurokamiapi-panmei.vercel.app/api/genre";
+    const urlParams = new URLSearchParams(window.location.search);
+    let genre = urlParams.get("genreid");
+    let currentPage = 1;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!genre) {
+            document.getElementById("genre-title").textContent = "Genre Tidak Ditemukan";
+            return;
+        }
+        document.getElementById("genre-title").textContent = `Manhwa Genre: ${genre.replace(/-/g, ' ')}`;
+        fetchManhwaByGenre();
+    });
+
+    function fetchManhwaByGenre() {
+    const loading = document.getElementById("loading");
+    const manhwaList = document.getElementById("manhwa-list");
+
+    loading.style.display = "block"; // Tampilkan loading
+    manhwaList.innerHTML = ""; // Kosongkan daftar manhwa
+
+    fetch(`${apiBase}/${genre}/page/${currentPage}`)
+        .then(response => response.json())
+        .then(data => {
+            manhwaList.innerHTML = ""; // Hapus loading sebelum menampilkan data
+
+            data.seriesList.forEach(manhwa => {
+                const manhwaItem = document.createElement("div");
+                manhwaItem.classList.add("manhwa-item");
+                manhwaItem.innerHTML = `
+                    <a href="detail.html?manhwaid=${manhwa.url.split('/').slice(-2, -1)[0]}" class="cover-wrapper">
+                        <img src="${manhwa.image}" alt="${manhwa.title}">
+                    </a>
+                    <h3>${manhwa.title}</h3>
+                    <p>Rating: ${manhwa.rating || "Tidak tersedia"}</p>
+                    <p><strong>${manhwa.latestChapter || "Belum ada chapter"}</strong></p>
+                `;
+                manhwaList.appendChild(manhwaItem);
+            });
+
+            document.getElementById("pageNumber").textContent = `Halaman ${currentPage}`;
+        })
+        .catch(error => console.error("Gagal mengambil data genre:", error))
+        .finally(() => {
+            loading.style.display = "none"; // Sembunyikan loading setelah data selesai diambil
+        });
+}
+
+
+    document.getElementById("prevPage").addEventListener("click", function() {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchManhwaByGenre();
+        }
+    });
+
+    document.getElementById("nextPage").addEventListener("click", function() {
+        currentPage++;
+        fetchManhwaByGenre();
+    });
+    </script>
+
+</body>
+</html>
