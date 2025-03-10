@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Manhwa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Daftar Manhwa</h1>
+    <div id="manhwaList"></div>
+    <script>
+      function fetchManhwaList() {
+    fetch("https://kurokamiapi-panmei.vercel.app/api/list")
+        .then(response => response.json())
+        .then(data => {
+            const listContainer = document.getElementById("manhwaList");
+            listContainer.innerHTML = "";
+
+            data.forEach(category => {
+                if (category.manhwaList.length > 0) {
+                    // Buat kategori baru
+                    const categoryElement = document.createElement("div");
+                    categoryElement.classList.add("category");
+                    categoryElement.innerHTML = `<h2>${category.name || "Tanpa Kategori"}</h2>`;
+
+                    const manhwaItems = category.manhwaList.map(manhwa => {
+                        let manhwaId = manhwa.href.split('/').slice(-2, -1)[0];
+
+                        return `
+                            <div class="manhwa-item">
+                                <a href="detail.html?manhwaid=${manhwaId}">${manhwa.title}</a>
+                            </div>
+                        `;
+                    }).join("");
+
+                    categoryElement.innerHTML += manhwaItems;
+                    listContainer.appendChild(categoryElement);
+                }
+            });
+        })
+        .catch(error => console.error("Gagal mengambil daftar manhwa:", error));
+}
+
+// Panggil fungsi hanya jika berada di list.html
+if (window.location.pathname.includes("list.html")) {
+    fetchManhwaList();
+}
+
+    </script>
+</body>
+</html>
