@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manhwa Baru</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+      
+        <div class="logo">ManhwaBaca</div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Cari manhwa...">
+            <button onclick="redirectToSearch()">Cari</button>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('popular')">Populer</div>
+        <div class="tab" onclick="showTab('latest')">Terbaru</div>
+    </div>
+    <!-- Tombol ke List -->
+    <div class="list-button-container">
+        <button id="goToList">Lihat Daftar Manhwa</button>
+        <button id="goToGenres">Lihat Genre</button>
+    </div>
+    
+    <div id="popular-section" class="content-section active">
+        <h1>Manhwa Populer</h1>
+        
+        <div id="manhwa-popular"></div>
+    </div>
+
+    <div id="latest-section" class="content-section">
+        <h1>Manhwa Terbaru</h1>
+        <div id="manhwa-list"></div>
+        
+    </div>
+
+
+    <script>
+    const apiBase = "https://kurokamiapi-panmei.vercel.app/api/";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchManhwaNew();
+        fetchManhwaPopular();
+    });
+
+    function redirectToSearch() {
+        let query = document.getElementById("searchInput").value.trim();
+        if (query === "") {
+            alert("Masukkan kata kunci pencarian!");
+            return;
+        }
+        window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+    }
+
+    function showTab(tabId) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        if (tabId === 'popular') {
+            document.getElementById('popular-section').classList.add('active');
+            document.querySelectorAll('.tab')[0].classList.add('active');
+        } else if (tabId === 'latest') {
+            document.getElementById('latest-section').classList.add('active');
+            document.querySelectorAll('.tab')[1].classList.add('active');
+        }
+    }
+
+    let popularTitles = {}; 
+
+    function fetchManhwaPopular() {
+        fetch(`${apiBase}manhwa-popular`)
+            .then(response => response.json())
+            .then(data => {
+                const popularList = document.getElementById("manhwa-popular");
+                popularList.innerHTML = "";
+                data.forEach(manhwa => {
+                    popularTitles[manhwa.link] = manhwa.title || "Tanpa Judul";
+                    const popularItem = document.createElement("div");
+                    popularItem.classList.add("manhwa-popular-item");
+                    popularItem.innerHTML = `
+                        <a href="detail.html?manhwaid=${manhwa.link.split('/').slice(-2, -1)[0]}" class="cover-wrapper">
+                            <img src="${manhwa.imageSrc}" alt="${manhwa.title}" class="lazy-load">
+                        </a>
+                        <h3>${manhwa.title || "Tanpa Judul"}</h3>
+                        <p>Rating: ${manhwa.rating || "Tidak tersedia"}</p>
+                        <p><strong>${manhwa.chapter || "Belum ada chapter"}</strong></p>
+                    `;
+                    popularList.appendChild(popularItem);
+                    setTimeout(() => {
+                        const img = popularItem.querySelector('img');
+                        if (img) img.classList.add('loaded');
+                    }, 100);
+                });
+            })
+            .catch(error => console.error("Gagal mengambil data manhwa populer:", error));
+    }
+
+    function fetchManhwaNew() {
+        fetch(`${apiBase}manhwa-new`)
+            .then(response => response.json())
+            .then(data => {
+                const manhwaList = document.getElementById("manhwa-list");
+                manhwaList.innerHTML = "";
+                data.forEach(manhwa => {
+                    let chapterExample = manhwa.chapters?.length > 0 ? manhwa.chapters[0].chapterLink.split("/").slice(-2, -1)[0] : "";
+                    let title = manhwa.title || (chapterExample ? chapterExample.replace(/-chapter-\d+/, '').replace(/-/g, ' ') : "Tanpa Judul");
+
+                    const manhwaItem = document.createElement("div");
+                    manhwaItem.classList.add("manhwa-item");
+
+                    let chapterLinks = manhwa.chapters?.map(chapter => {
+                        let chapterId = chapter.chapterLink?.split("/").slice(-2, -1)[0] || "";
+                        return `<a href="chapter.html?chapterid=${chapterId}">${chapter.chapterTitle || "Chapter tidak diketahui"} - ${chapter.timeAgo || ""}</a>`;
+                    }).join("") || "<p>Belum ada chapter.</p>";
+
+                    manhwaItem.innerHTML = `
+                        <a href="detail.html?manhwaid=${manhwa.link?.split('/').slice(-2, -1)[0] || ""}" class="cover-wrapper">
+                            <img src="${manhwa.imageSrc || ""}" alt="${title}" class="lazy-load">
+                        </a>
+                        <h3>${title}</h3>
+                        <div class="chapter-list">${chapterLinks}</div>
+                    `;
+
+                    manhwaList.appendChild(manhwaItem);
+
+                    setTimeout(() => {
+                        const img = manhwaItem.querySelector('img');
+                        if (img) img.classList.add('loaded');
+                    }, 100);
+                });
+            })
+            .catch(error => console.error("Gagal mengambil data manhwa:", error));
+    }
+
+    // Tombol menuju halaman list
+    document.getElementById("goToList").addEventListener("click", function() {
+        window.location.href = "list.html";
+    });
+    document.getElementById("goToGenres").addEventListener("click", function() {
+    window.location.href = "genres.html";
+});
+    </script>
+</body>
+</html>
