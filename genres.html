@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Genre Manhwa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">ManhwaBaca</div>
+        <a href="index.html" class="back-button">⬅ Kembali</a>
+    </header>
+
+    <div class="container">
+        <h1>Daftar Genre</h1>
+        <div id="loading" class="loading">Loading...</div>
+<div id="genre-list"></div>
+
+        <div id="genre-list"></div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchGenres();
+    });
+
+    function fetchGenres() {
+    const loading = document.getElementById("loading");
+    const genreList = document.getElementById("genre-list");
+
+    loading.style.display = "block"; // Tampilkan loading
+    genreList.innerHTML = ""; // Kosongkan daftar genre
+
+    fetch("https://kurokamiapi-panmei.vercel.app/api/genres")
+        .then(response => response.json())
+        .then(data => {
+            genreList.innerHTML = ""; // Hapus loading sebelum menampilkan data
+
+            data.genres.forEach(genre => {
+                const genreItem = document.createElement("div");
+                genreItem.classList.add("genre-item");
+                genreItem.innerHTML = `<a href="genre.html?genreid=${genre.label.toLowerCase().replace(/\s+/g, '-')}">${genre.label}</a>`;
+                genreList.appendChild(genreItem);
+            });
+        })
+        .catch(error => console.error("Gagal mengambil data genre:", error))
+        .finally(() => {
+            loading.style.display = "none"; // Sembunyikan loading setelah data selesai diambil
+        });
+}
+
+    </script>
+
+</body>
+</html>
