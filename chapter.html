@@ -4,7 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter</title>
-    <link rel="stylesheet" href="chapter.css">
+    <style>
+        /* Import Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Reset & Gaya Dasar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #121212; /* Latar gelap */
+    color: #e0e0e0;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Judul */
+h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #ffcc00; /* Kuning cerah */
+}
+
+/* Navigasi Chapter */
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.nav-buttons.hidden {
+    opacity: 0;
+    pointer-events: none; /* Supaya tidak bisa diklik saat hilang */
+}
+
+.nav-buttons a {
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #ff6f61;
+    transition: all 0.3s ease-in-out;
+}
+
+.nav-buttons a:hover {
+    background: #ff8a80;
+}
+
+.nav-buttons a.disabled {
+    background: #444;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Container Gambar Manga */
+#images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-top: 50px;
+}
+
+/* Gambar Manga Fullscreen */
+#images img {
+    width: 100vw;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Responsif */
+@media (min-width: 768px) {
+    #images img {
+        width: 90%;
+        max-width: 900px;
+    }
+
+    .nav-buttons {
+        justify-content: center;
+        gap: 20px;
+    }
+}
+
+    </style>
 <body>
     <h1 id="title">Loading...</h1>
     <div class="nav-buttons">
