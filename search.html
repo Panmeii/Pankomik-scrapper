@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Pencarian</title>
+    <style>
+      /* Import Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Reset & Gaya Dasar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #121212; /* Latar gelap */
+    color: #e0e0e0;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Judul */
+h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #ffcc00; /* Kuning cerah */
+}
+
+/* Navigasi Chapter */
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.nav-buttons.hidden {
+    opacity: 0;
+    pointer-events: none; /* Supaya tidak bisa diklik saat hilang */
+}
+
+.nav-buttons a {
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #ff6f61;
+    transition: all 0.3s ease-in-out;
+}
+
+.nav-buttons a:hover {
+    background: #ff8a80;
+}
+
+.nav-buttons a.disabled {
+    background: #444;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Container Gambar Manga */
+#images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-top: 50px;
+}
+
+/* Gambar Manga Fullscreen */
+#images img {
+    width: 100vw;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Responsif */
+@media (min-width: 768px) {
+    #images img {
+        width: 90%;
+        max-width: 900px;
+    }
+
+    .nav-buttons {
+        justify-content: center;
+        gap: 20px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <h1>Hasil Pencarian</h1>
+    <div id="searchResults"></div>
+    <script>
+      
+//hasil search
+function fetchSearchResults() {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("query");
+
+    if (!query) {
+        document.getElementById("searchResults").innerHTML = "<p>Masukkan kata kunci pencarian.</p>";
+        return;
+    }
+
+    fetch(`https://kurokamiapi-panmei.vercel.app/api/search/${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultsContainer = document.getElementById("searchResults");
+            resultsContainer.innerHTML = `<h2>Hasil pencarian untuk: "${query}"</h2>`;
+
+            if (data.seriesList.length === 0) {
+                resultsContainer.innerHTML += "<p>Tidak ditemukan.</p>";
+                return;
+            }
+
+            data.seriesList.forEach(manhwa => {
+                let manhwaId = manhwa.url.split('/').slice(-2, -1)[0];
+
+                const manhwaItem = document.createElement("div");
+                manhwaItem.classList.add("manhwa-item");
+
+                manhwaItem.innerHTML = `
+                    <a href="detail.html?manhwaid=${manhwaId}">
+                        <img src="${manhwa.image}" alt="${manhwa.title}">
+                    </a>
+                    <h3>${manhwa.title}</h3>
+                    <p>Rating: ${manhwa.rating}</p>
+                    <p>Chapter terbaru: ${manhwa.latestChapter}</p>
+                `;
+
+                resultsContainer.appendChild(manhwaItem);
+            });
+        })
+        .catch(error => console.error("Gagal mencari manhwa:", error));
+}
+
+// Panggil fungsi ini hanya jika berada di search.html
+if (window.location.pathname.includes("search.html")) {
+    fetchSearchResults();
+}
+
+
+
+// Panggil fungsi ini hanya jika berada di search.html
+if (window.location.pathname.includes("search.html")) {
+    fetchSearchResults();
+}
+    </script>
+</body>
+</html>
