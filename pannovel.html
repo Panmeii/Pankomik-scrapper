@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel Terbaru</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .novel {
+            display: flex;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .novel img {
+            width: 100px;
+            height: 140px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .novel-info {
+            flex: 1;
+        }
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Novel Terbaru</h2>
+        <div id="novel-list"></div>
+        <div class="pagination">
+            <button id="prevPage">Sebelumnya</button>
+            <span id="currentPage">1</span>
+            <button id="nextPage">Selanjutnya</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        
+        async function fetchNovels(page) {
+            const url = `https://novel-api-test.vercel.app/bacalight/bacalight/latest?page=${page}&status=&type=&order=update`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayNovels(data.data);
+                    document.getElementById("currentPage").innerText = page;
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        function displayNovels(novels) {
+            const novelList = document.getElementById("novel-list");
+            novelList.innerHTML = "";
+            
+            novels.forEach(novel => {
+                const novelItem = document.createElement("div");
+                novelItem.classList.add("novel");
+
+                novelItem.innerHTML = `
+                    <img src="${novel.cover}" alt="${novel.title}">
+                    <div class="novel-info">
+                        <h3><a href="${novel.novelUrl}" target="_blank">${novel.title}</a></h3>
+                        <p>${novel.description}</p>
+                        <p><strong>Genre:</strong> ${novel.genres.join(", ")}</p>
+                        <p><strong>Rating:</strong> ${novel.rating}</p>
+                        <p><strong>Chapter Terbaru:</strong> <a href="${novel.latestChapterUrl}" target="_blank">${novel.latestChapter}</a></p>
+                    </div>
+                `;
+                novelList.appendChild(novelItem);
+            });
+        }
+
+        document.getElementById("prevPage").addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchNovels(currentPage);
+            }
+        });
+
+        document.getElementById("nextPage").addEventListener("click", () => {
+            currentPage++;
+            fetchNovels(currentPage);
+        });
+
+        fetchNovels(currentPage);
+    </script>
+</body>
+</html>
